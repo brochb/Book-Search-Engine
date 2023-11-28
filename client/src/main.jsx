@@ -1,23 +1,42 @@
 import ReactDOM from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { ApolloProvider } from '@apollo/client';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 import App from './App.jsx'
 import SearchBooks from './pages/SearchBooks'
 import SavedBooks from './pages/SavedBooks'
 
+const client = new ApolloClient({
+  uri: '/graphql',
+  cache: new InMemoryCache(),
+});
+
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <App />,
+    element: (
+      <ApolloProvider client={client}>
+        <App />
+      </ApolloProvider>
+    ),
     errorElement: <h1 className='display-2'>Wrong page!</h1>,
     children: [
       {
         index: true,
-        element: <SearchBooks />
+        element: (
+          <ApolloProvider client={client}>
+            <SearchBooks />
+          </ApolloProvider>
+        ),
       }, {
         path: '/saved',
-        element: <SavedBooks />
+        element: (
+          <ApolloProvider client={client}>
+            <SavedBooks />
+          </ApolloProvider>
+        ),
       }
     ]
   }
