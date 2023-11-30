@@ -1,5 +1,3 @@
-// mutations.js
-
 export const createUserMutation = (userData) => {
     return fetch('/api/users', {
         method: 'POST',

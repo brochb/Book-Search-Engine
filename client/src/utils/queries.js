@@ -1,5 +1,3 @@
-// queries.js
-
 export const getMeQuery = (token) => {
     return fetch('/api/users/me', {
         headers: {
