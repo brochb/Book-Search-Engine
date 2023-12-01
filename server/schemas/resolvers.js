@@ -1,9 +1,9 @@
-const { User, Books } = require('../models');
+const { User, Book } = require('../models');
 const { authMiddleware, signToken } = require('../utils/auth');
 
 const resolvers = {
     Query: {
-        me: async (_, args, context) => {
+        me: async ( parent, args, context) => {
             // Use authMiddleware to check for authentication
             const currentUser = await authMiddleware(context);
 
@@ -11,12 +11,15 @@ const resolvers = {
                 throw new Error('Not authenticated');
             }
 
-            return currentUser;
+            const userData = await User.findOne({ _id: currentUser._id })
+                .select('-__v -password')
+                .populate('savedBooks');
+
+            return userData;
         },
     },
     Mutation: {
-        login: async (_, { email, password }) => {
-            // Implement your logic to authenticate and return an Auth type
+        login: async (parent, { email, password }) => {
             const user = await User.findOne({ email });
 
             if (!user || !(await user.isCorrectPassword(password))) {
@@ -26,14 +29,46 @@ const resolvers = {
             const token = signToken(user);
             return { token, user };
         },
-        addUser: async (_, { username, email, password }) => {
-            // Implement your logic to add a user and return an Auth type
+        addUser: async (parent, { username, email, password }) => {
             const user = await User.create({ username, email, password });
             const token = signToken(user);
             return { token, user };
         },
-        // Implement other mutation functions
+        saveBook: async (_, { bookData }, context) => {
+            const currentUser = await authMiddleware(context);
+
+            if (!currentUser) {
+                throw new Error('Not authenticated');
+            }
+
+            const updatedUser = await User.findOneAndUpdate(
+                { _id: currentUser._id },
+                {
+                    $addToSet: { savedBooks: bookData },
+                },
+                { new: true }
+            );
+
+            return updatedUser;
+        },
+
+        removeBook: async (_, { bookId }, context) => {
+            const currentUser = await authMiddleware(context);
+
+            if (!currentUser) {
+                throw new Error('Not authenticated');
+            }
+
+            const updatedUser = await User.findOneAndUpdate(
+                { _id: currentUser._id },
+                { $pull: { savedBooks: { bookId } } },
+                { new: true }
+            );
+
+            return updatedUser;
+        },
     },
 };
+
 
 module.exports = resolvers;
