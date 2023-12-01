@@ -4,7 +4,6 @@ const { authMiddleware, signToken } = require('../utils/auth');
 const resolvers = {
     Query: {
         me: async ( parent, args, context) => {
-            // Use authMiddleware to check for authentication
             const currentUser = await authMiddleware(context);
 
             if (!currentUser) {

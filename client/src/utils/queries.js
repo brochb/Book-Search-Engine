@@ -1,12 +1,20 @@
-export const getMeQuery = (token) => {
-    return fetch('/api/users/me', {
-        headers: {
-            'Content-Type': 'application/json',
-            authorization: `Bearer ${token}`,
-        },
-    });
-};
+import { gql } from '@apollo/client';
 
-export const searchGoogleBooksQuery = (query) => {
-    return fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}`);
-};
+export const GET_ME = gql`
+  query me {
+    me {
+      _id
+      username
+      email
+      bookCount
+      savedBooks {
+        bookId
+        authors
+        description
+        title
+        image
+        link
+      }
+    }
+  }
+`;

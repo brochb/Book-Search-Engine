@@ -4,6 +4,7 @@ import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
 import App from './App.jsx'
 import SearchBooks from './pages/SearchBooks'
 import SavedBooks from './pages/SavedBooks'
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 const client = new ApolloClient({
   uri: '/graphql',

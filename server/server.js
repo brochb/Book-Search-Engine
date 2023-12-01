@@ -14,7 +14,6 @@ const server = new ApolloServer({
   resolvers,
 });
 
-// Create a new instance of an Apollo server with the GraphQL schema
 const startApolloServer = async () => {
   await server.start();
 
@@ -35,11 +34,10 @@ const startApolloServer = async () => {
 
   db.once('open', () => {
     app.listen(PORT, () => {
-      console.log(console.log(`🌍 Now listening on localhost:${PORT}`));
+      console.log(`🌍 Now listening on localhost:${PORT}`);
       console.log(`Use GraphQL at http://localhost:${PORT}/graphql`);
     });
   });
 };
 
-// Call the async function to start the server
 startApolloServer();
