@@ -8,16 +8,23 @@
         "develop": "concurrently \"cd server && npm run watch\" \"cd client && npm run dev\"",
         "install": "cd server && npm i && cd ../client && npm i",
         "build": "cd client && npm run build",
-        "render-build": "npm install && npm run build"
+        "render-build": "npm install && npm run build",
+        "heroku-postbuild": "cd client && npm install && npm run build"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
+    "engines": {
+        "node": "20.5.1",
+        "npm": "10.2.4"
+    },
     "devDependencies": {
-        "concurrently": "^8.2.0"
+        "concurrently": "^8.2.0",
+        "vite": "^5.0.4"
     },
     "dependencies": {
         "@apollo/client": "^3.8.7",
-        "apollo-server-express": "^3.13.0"
+        "apollo-server-express": "^3.13.0",
+        "vite": "^5.0.4"
     }
 }
