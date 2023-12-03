@@ -8,17 +8,18 @@
         "build": "vite build",
         "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
         "preview": "vite preview",
+        "heroku-prebuild": "npm cache clean --force",
         "heroku-postbuild": "cd client && npm install && npm run build"
     },
     "dependencies": {
-        "@apollo/client": "^3.8.8",
-        "bootstrap": "^5.2.3",
-        "graphql": "^16.8.1",
-        "jwt-decode": "^3.1.2",
-        "react": "^18.2.0",
-        "react-bootstrap": "^2.7.4",
-        "react-dom": "^18.2.0",
-        "react-router-dom": "^6.11.2"
+        "@apollo/client": "3.8.8",
+        "bootstrap": "5.2.3",
+        "graphql": "16.8.1",
+        "jwt-decode": "3.1.2",
+        "react": "18.2.0",
+        "react-bootstrap": "2.7.4",
+        "react-dom": "18.2.0",
+        "react-router-dom": "6.11.2"
     },
     "devDependencies": {
         "@types/react": "^18.0.28",
