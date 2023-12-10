@@ -9,7 +9,7 @@ const LoginForm = () => {
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
-  const [loginUser, { loading, error, data }] = useMutation(LOGIN_USER);
+  const [loginUser, { error }] = useMutation(LOGIN_USER);
 
 
   const handleInputChange = (event) => {
@@ -31,19 +31,19 @@ const LoginForm = () => {
         variables: userFormData,
       });
 
-      const { token, user } = data.login;
-      Auth.login(token);
+      Auth.login(data.login.token);
     } catch (err) {
       console.error(err);
       setShowAlert(true);
     }
 
-    setUserFormData({
-      username: '',
+    setUserFormData({   
       email: '',
       password: '',
     });
   };
+
+  const loggedIn = Auth.loggedIn();
 
   return (
     <>
@@ -61,7 +61,7 @@ const LoginForm = () => {
             value={userFormData.email}
             required
           />
-          <Form.Control.Feedback type='invalid'>Email is required!</Form.Control.Feedback>
+          <Form.Control.Feedback type='invalid'>Email/Password is required!</Form.Control.Feedback>
         </Form.Group>
 
         <Form.Group className='mb-3'>
@@ -74,7 +74,7 @@ const LoginForm = () => {
             value={userFormData.password}
             required
           />
-          <Form.Control.Feedback type='invalid'>Password is required!</Form.Control.Feedback>
+          <Form.Control.Feedback type='invalid'>Email/Password is required!</Form.Control.Feedback>
         </Form.Group>
         <Button
           disabled={!(userFormData.email && userFormData.password)}
@@ -83,6 +83,8 @@ const LoginForm = () => {
           Submit
         </Button>
       </Form>
+
+      <div>{loggedIn ? 'You are logged in!' : 'Please log in.'}</div>
     </>
   );
 };

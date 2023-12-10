@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import { saveBookIds, getSavedBookIds } from '../utils/localStorage'
-import { saveBook, searchGoogleBooks } from '../utils/API';
 import {
   Container,
   Col,
@@ -11,8 +9,10 @@ import {
 } from 'react-bootstrap';
 
 import Auth from '../utils/auth';
-import { useMutation } from '@apollo/client';
+import { saveBook, searchGoogleBooks } from '../utils/API';
+import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
 import { GET_ME } from '../utils/queries';
+import { useMutation } from '@apollo/client';
 import { LOGIN_USER, ADD_USER, SAVE_BOOK, REMOVE_BOOK } from '../utils/mutations';
 
 
@@ -23,7 +23,6 @@ const SearchBooks = () => {
   const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
 
   const [saveBook] = useMutation(SAVE_BOOK, {
-    refetchQueries: [{ query: GET_ME }],
   });
   const [loginUser] = useMutation(LOGIN_USER);
   const [addUser] = useMutation(ADD_USER);
@@ -31,7 +30,7 @@ const SearchBooks = () => {
 
   useEffect(() => {
     return () => saveBookIds(savedBookIds);
-  });
+  }, [savedBookIds]);
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
@@ -66,7 +65,6 @@ const SearchBooks = () => {
 
   const handleSaveBook = async (bookId) => {
     const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
-
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
     if (!token) {
@@ -74,15 +72,21 @@ const SearchBooks = () => {
     }
 
     try {
-      const response = await saveBook(bookToSave, token);
+      const { data, errors } = await saveBook({
+        variables: { bookData: bookToSave },
+      });
 
-      if (!response.ok) {
-        throw new Error('something went wrong!');
+      if (errors) {
+        // Handle GraphQL errors
+        console.error('GraphQL Error:', errors);
+        throw new Error('GraphQL Error');
       }
+
+      console.log('Save book response data:', data);
 
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
     } catch (err) {
-      console.error(err);
+      console.error('Save book error:', err);
     }
   };
 
