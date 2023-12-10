@@ -12,7 +12,10 @@ const typeDefs = gql`
 
   type Query {
     me: User
+    # Add more Query types if needed
   }
+
+  # Add more custom types like Book, Auth, etc. if needed
 
   type User {
     _id: ID
@@ -41,6 +44,7 @@ const typeDefs = gql`
     addUser(username: String!, email: String!, password: String!): Auth
     saveBook(bookData: BookInput!): User
     removeBook(bookId: String!): User
+    # Add more Mutation types if needed
   }
 `;
 

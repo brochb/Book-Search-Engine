@@ -1,73 +1,71 @@
 const { User, Book } = require('../models');
-const { authMiddleware, signToken } = require('../utils/auth');
+const { signToken, AuthenticationError } = require('../utils/auth');
 
 const resolvers = {
     Query: {
-        me: async ( parent, args, context) => {
-            const currentUser = await authMiddleware(context);
+        me: async (parent, args, context) => {
+            if (context.user) {
+                const userData = await User.findOne({ _id: context.user._id })
+                    .select('-__v -password')
+                    .populate('savedBooks');
 
-            if (!currentUser) {
-                throw new Error('Not authenticated');
+                return userData;
             }
-
-            const userData = await User.findOne({ _id: currentUser._id })
-                .select('-__v -password')
-                .populate('savedBooks');
-
-            return userData;
+            throw new AuthenticationError('Not logged in');
         },
     },
     Mutation: {
         login: async (parent, { email, password }) => {
             const user = await User.findOne({ email });
 
-            if (!user || !(await user.isCorrectPassword(password))) {
-                throw new Error('Invalid email or password');
+            if (!user) {
+                throw new AuthenticationError('Incorrect credentials');
+            }
+
+            const correctPw = await user.isCorrectPassword(password);
+
+            if (!correctPw) {
+                throw new AuthenticationError('Incorrect credentials');
             }
 
             const token = signToken(user);
             return { token, user };
         },
-        addUser: async (parent, { username, email, password }) => {
-            const user = await User.create({ username, email, password });
+        saveBook: async (parent, { bookData }, context) => {
+            if (context.user) {
+                const updatedUser = await User.findOneAndUpdate(
+                    { _id: context.user._id },
+                    {
+                        $addToSet: { savedBooks: bookData },
+                    },
+                    { new: true }
+                )
+                return updatedUser;
+            }
+            throw AuthenticationError;
+        },
+
+        addUser: async (parent, args) => {
+            const user = await User.create(args);
+            if (!user) {
+                throw AuthenticationError
+            }
             const token = signToken(user);
-            return { token, user };
+            return { token, user }
         },
-        saveBook: async (_, { bookData }, context) => {
-            const currentUser = await authMiddleware(context);
 
-            if (!currentUser) {
-                throw new Error('Not authenticated');
+        removeBook: async (parent, args, context) => {
+            if (context.user) {
+                const updatedUser = await User.findOneAndUpdate(
+                    { _id: context.user },
+                    { $pull: { savedBooks: { bookId: args.bookId } } },
+                    { new: true }
+                );
+                return updatedUser
             }
-
-            const updatedUser = await User.findOneAndUpdate(
-                { _id: currentUser._id },
-                {
-                    $addToSet: { savedBooks: bookData },
-                },
-                { new: true }
-            );
-
-            return updatedUser;
-        },
-
-        removeBook: async (_, { bookId }, context) => {
-            const currentUser = await authMiddleware(context);
-
-            if (!currentUser) {
-                throw new Error('Not authenticated');
-            }
-
-            const updatedUser = await User.findOneAndUpdate(
-                { _id: currentUser._id },
-                { $pull: { savedBooks: { bookId } } },
-                { new: true }
-            );
-
-            return updatedUser;
-        },
+            throw AuthenticationError
+        }
     },
 };
-
 
 module.exports = resolvers;
