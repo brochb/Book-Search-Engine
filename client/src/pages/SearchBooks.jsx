@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { saveBookIds, getSavedBookIds } from '../utils/localStorage'
+import { saveBook, searchGoogleBooks } from '../utils/API';
 import {
   Container,
   Col,
@@ -9,12 +10,24 @@ import {
   Row
 } from 'react-bootstrap';
 
+import Auth from '../utils/auth';
+import { useMutation } from '@apollo/client';
+import { GET_ME } from '../utils/queries';
+import { LOGIN_USER, ADD_USER, SAVE_BOOK, REMOVE_BOOK } from '../utils/mutations';
+
 
 const SearchBooks = () => {
   const [searchedBooks, setSearchedBooks] = useState([]);
   const [searchInput, setSearchInput] = useState('');
 
   const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
+
+  const [saveBook] = useMutation(SAVE_BOOK, {
+    refetchQueries: [{ query: GET_ME }],
+  });
+  const [loginUser] = useMutation(LOGIN_USER);
+  const [addUser] = useMutation(ADD_USER);
+  const [removeBook] = useMutation(REMOVE_BOOK);
 
   useEffect(() => {
     return () => saveBookIds(savedBookIds);
