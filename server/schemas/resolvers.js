@@ -42,13 +42,13 @@ const resolvers = {
                 )
                 return updatedUser;
             }
-            throw AuthenticationError;
+            throw AuthenticationError('Cannot save book');
         },
 
         addUser: async (parent, args) => {
             const user = await User.create(args);
             if (!user) {
-                throw AuthenticationError
+                throw AuthenticationError('Cannot add User')
             }
             const token = signToken(user);
             return { token, user }
@@ -63,7 +63,7 @@ const resolvers = {
                 );
                 return updatedUser
             }
-            throw AuthenticationError
+            throw AuthenticationError('Cannot remove book')
         }
     },
 };
